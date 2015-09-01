@@ -1,0 +1,14 @@
+{
+  "title": "Safe Addon",
+  "name": "safe_addon",
+  "version": "0.0.1",
+  "description": "Add-on for Safe Network",
+  "main": "index.js",
+  "unpack": true,
+  "author": "",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "MIT"
+}
