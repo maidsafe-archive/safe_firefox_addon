@@ -49,12 +49,13 @@ NodeJs should be installed
       ```
     
 ## Known Limitations:
-
-  1. Can serve file up to 1GB only
-  2. Browser Crash - Right Clicking on the browser and selecting `View Page Source`
-  3. If the public name is not available, then the browser becomes non-responsive. 
+  
+  1. Windows not supported
+  2. Can serve file up to 1GB only
+  3. Browser Crash - Right Clicking on the browser and selecting `View Page Source`
+  4. If the public name is not available, then the browser becomes non-responsive. 
      Must force quit the browser and start again.
-  4. On OSX, when the browser is closed at times the browser crashes
+  5. On OSX, when the browser is closed the browser crashes occasionally
  
 ## TODO 
  
