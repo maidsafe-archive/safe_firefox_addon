@@ -10,7 +10,7 @@ const {data} = require('sdk/self');
 const SCHEME = "safe";
 const SEGMENT_SIZE = 1024;
 const MAX_SEGMENT_COUNT = 1024;
-
+var system = require('sdk/system');
 
 var onException = function(channel, outputStream, errorMessage) {
   channel.contentType = 'text/html';
@@ -38,8 +38,18 @@ function resolveToFile(uri) {
   }
 }
 
+
+function getSodiumLibraryFileName() {
+  // OS_TARGET (https://developer.mozilla.org/en-US/docs/OS_TARGET)
+  var EXTENSION = {
+    'winnt': 'dll',
+    'linux': 'so.13',
+    'darwin': 'dylib'
+  }[system.platform.toLowerCase()];
+  return 'libsodium.' + EXTENSION;
+}
+
 function getLibraryFileName() {
-  var system = require('sdk/system');
   // OS_TARGET (https://developer.mozilla.org/en-US/docs/OS_TARGET)
   var EXTENSION = {
     'winnt': 'dll',
@@ -50,7 +60,9 @@ function getLibraryFileName() {
 }
 
 // Opens the Library file. Entry point for jsCtypes
+var libSodiumUri = resolveToFile(Services.io.newURI(data.url(getSodiumLibraryFileName()), null, null));
 var libURI = resolveToFile(Services.io.newURI(data.url(getLibraryFileName()), null, null));
+ctypes.open(libSodiumUri.path);
 var lib = ctypes.open(libURI.path);
 // Declaring the functions in jsCtypes convention
 var getFileSize = lib.declare('get_file_size_from_service_home_dir',

@@ -12,6 +12,7 @@ NodeJs should be installed
 
  3. Copy the `libc_wrapper.{so, dylib}` from the `target/release` folder to the `data` folder of the `Safe-Addon`
 
+ 4. Also add the libsodium dependency in the `data` folder. For linux, add `libsodium.so.<version>` instead of `libsodium.so`
 
 ## Packaging the API:
   Execute `jpm xpi` to get the @safe_addon.xpi file
