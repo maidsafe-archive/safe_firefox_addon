@@ -3,6 +3,7 @@
 *.a
 *.o
 *.so
+*.so.13
 *.rlib
 *.dll
 
