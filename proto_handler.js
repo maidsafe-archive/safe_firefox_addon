@@ -39,30 +39,25 @@ function resolveToFile(uri) {
 }
 
 
-function getSodiumLibraryFileName() {
-  // OS_TARGET (https://developer.mozilla.org/en-US/docs/OS_TARGET)
-  var EXTENSION = {
-    'winnt': 'dll',
-    'linux': 'so.13',
-    'darwin': 'dylib'
-  }[system.platform.toLowerCase()];
-  return 'libsodium.' + EXTENSION;
-}
-
 function getLibraryFileName() {
+  var platform = system.platform.toLowerCase();
   // OS_TARGET (https://developer.mozilla.org/en-US/docs/OS_TARGET)
   var EXTENSION = {
-    'winnt': 'dll',
-    'linux': 'so',
-    'darwin': 'dylib'
-  }[system.platform.toLowerCase()];
-  return 'libsafe_ffi.' + EXTENSION;
+    'winnt': '.dll',
+    'linux': '.so',
+    'darwin': '.dylib'
+  }[platform];
+  return platform === 'winnt' ? 'safe_ffi' : 'libsafe_ffi' + EXTENSION;
 }
 
+// Loads the libsodium dependency for Linux
+if (system.platform.toLowerCase() === 'linux') {
+  // Todo scan and pick the `.so` version number
+  var libSodiumUri = resolveToFile(Services.io.newURI(data.url('libsodium.so.13'), null, null));
+  ctypes.open(libSodiumUri.path);
+}
 // Opens the Library file. Entry point for jsCtypes
-var libSodiumUri = resolveToFile(Services.io.newURI(data.url(getSodiumLibraryFileName()), null, null));
 var libURI = resolveToFile(Services.io.newURI(data.url(getLibraryFileName()), null, null));
-ctypes.open(libSodiumUri.path);
 var lib = ctypes.open(libURI.path);
 // Declaring the functions in jsCtypes convention
 var getFileSize = lib.declare('get_file_size_from_service_home_dir',
