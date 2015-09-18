@@ -50,37 +50,45 @@ function getLibraryFileName() {
   return platform === 'winnt' ? 'safe_ffi' : 'libsafe_ffi' + EXTENSION;
 }
 
-// Loads the libsodium dependency for Linux
-if (system.platform.toLowerCase() === 'linux') {
-  // Todo scan and pick the `.so` version number
-  var libSodiumUri = resolveToFile(Services.io.newURI(data.url('libsodium.so.13'), null, null));
-  ctypes.open(libSodiumUri.path);
-}
 // Opens the Library file. Entry point for jsCtypes
 var libURI = resolveToFile(Services.io.newURI(data.url(getLibraryFileName()), null, null));
 var lib = ctypes.open(libURI.path);
 // Declaring the functions in jsCtypes convention
+var getClientEngine = lib.declare('create_unregistered_client',
+    ctypes.default_abi,
+    ctypes.int32_t,
+    ctypes.voidptr_t.ptr);
+
 var getFileSize = lib.declare('get_file_size_from_service_home_dir',
     ctypes.default_abi,
     ctypes.int32_t,
+    ctypes.voidptr_t,
     ctypes.char.ptr,
     ctypes.char.ptr,
     ctypes.char.ptr,
-    ctypes.bool,
     ctypes.size_t.ptr);
 
 var getFileContent = lib.declare('get_file_content_from_service_home_dir',
     ctypes.default_abi,
     ctypes.int32_t,
+    ctypes.voidptr_t,
     ctypes.char.ptr,
     ctypes.char.ptr,
     ctypes.char.ptr,
-    ctypes.bool,
     ctypes.uint8_t.ptr);
+
+var clientHandle = ctypes.voidptr_t(0);
+try {
+    var err_code = getClientEngine(clientHandle.address());
+    console.log("Error Code obtaining client handle:", err_code);
+} catch (e) {
+    console.log("Error obtaining client handle:", e.toString());
+}
 
 function SafeProtocolHandler() {
 
 }
+
 SafeProtocolHandler.prototype = Object.freeze({
   classDescription: "Safe Protocol Handler",
   contractID: "@mozilla.org/network/protocol;1?name=" + SCHEME,
@@ -131,14 +139,14 @@ PipeChannel.prototype = {
       this.channel.asyncOpen(listener, context);
       // Get requested file size through the Safe API
       var fileSizeCtypes = ctypes.size_t(0);
-      var errorCode = getFileSize(parsedURI.publicName, parsedURI.service, parsedURI.filePath, false, fileSizeCtypes.address());
+      var errorCode = getFileSize(clientHandle, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileSizeCtypes.address());
       if (errorCode !== 0) {
         throw new Error("File Not found");
       }
       // Get the file content
       var Uint8Array_t = ctypes.ArrayType(ctypes.uint8_t, fileSizeCtypes.value);
       var fileContent = Uint8Array_t();
-      errorCode = getFileContent(parsedURI.publicName, parsedURI.service, parsedURI.filePath, false, fileContent.addressOfElement(0));
+      errorCode = getFileContent(clientHandle, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileContent.addressOfElement(0));
       if (errorCode !== 0) {
         throw new Error("Failed to get content");
       }
