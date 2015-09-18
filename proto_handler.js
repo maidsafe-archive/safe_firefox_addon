@@ -77,10 +77,13 @@ var getFileContent = lib.declare('get_file_content_from_service_home_dir',
     ctypes.char.ptr,
     ctypes.uint8_t.ptr);
 
-var clientHandle = ctypes.voidptr_t(0);
+// TODO Drop this handle by calling into `drop_client` FFI function on exit.
+var CLIENT_HANDLE = ctypes.voidptr_t(0);
 try {
-    var err_code = getClientEngine(clientHandle.address());
-    console.log("Error Code obtaining client handle:", err_code);
+    let errorCode = getClientEngine(CLIENT_HANDLE.address());
+    if (errorCode != 0) {
+        console.log("Error Code obtaining client handle:", errorCode);
+    }
 } catch (e) {
     console.log("Error obtaining client handle:", e.toString());
 }
@@ -138,15 +141,15 @@ PipeChannel.prototype = {
       // Prepare channel
       this.channel.asyncOpen(listener, context);
       // Get requested file size through the Safe API
-      var fileSizeCtypes = ctypes.size_t(0);
-      var errorCode = getFileSize(clientHandle, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileSizeCtypes.address());
+      var fileSizeCtypes = ctypes.size_t(0); // TODO This might give unexpected results for 32-bit platforms
+      var errorCode = getFileSize(CLIENT_HANDLE, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileSizeCtypes.address());
       if (errorCode !== 0) {
         throw new Error("File Not found");
       }
       // Get the file content
       var Uint8Array_t = ctypes.ArrayType(ctypes.uint8_t, fileSizeCtypes.value);
       var fileContent = Uint8Array_t();
-      errorCode = getFileContent(clientHandle, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileContent.addressOfElement(0));
+      errorCode = getFileContent(CLIENT_HANDLE, parsedURI.publicName, parsedURI.service, parsedURI.filePath, fileContent.addressOfElement(0));
       if (errorCode !== 0) {
         throw new Error("Failed to get content");
       }
