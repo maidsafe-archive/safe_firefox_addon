@@ -10,7 +10,7 @@ NodeJs should be installed
 
  2. Clone the [safe_ffi](https://github.com/maidsafe/safe_ffi) repository and build *Dynamic library* of the Rust code - `cargo build --release`
 
- 3. Copy the `libc_wrapper.{so, dylib}` from the `target/release` folder to the `data` folder of the `Safe-Addon`
+ 3. Copy the `safe_ffi` dynamic library (Linux: `libsafe_ffi.so` or in OSX: `libsafe_ffi.dylib`) from the `target/release` folder to the `data` folder of the `Safe-Addon`
 
 ## Packaging the API:
   Execute `jpm xpi` to get the @safe_addon.xpi file
