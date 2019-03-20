@@ -1,3 +1,9 @@
+# ***This repository is no longer maintained***
+# It has been moved to the maidsafe-archive organisation for reference only
+#
+#
+#
+#
 # safe_firefox_addon
 Addon to allow access to the SAFE network from the Firefox browser
 
